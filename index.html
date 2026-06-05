@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculadora de Comissões — Grupo Palmeiras Amazon</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --verde: #1a6b3c;
+    --verde-claro: #2d9e5f;
+    --verde-escuro: #0f3d22;
+    --ouro: #c8a94a;
+    --ouro-claro: #e8c96a;
+    --bg: #0a1a10;
+    --bg2: #111f16;
+    --bg3: #162a1d;
+    --borda: #1e3d28;
+    --texto: #d4e8da;
+    --texto-fraco: #6a9478;
+    --branco: #f0f7f2;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--texto);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  .topo {
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--borda);
+  }
+
+  .topo h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--branco);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+
+  .topo p {
+    font-size: 0.75rem;
+    color: var(--texto-fraco);
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .abas {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .aba {
+    flex: 1;
+    min-width: 80px;
+    padding: 10px 6px;
+    border: 1px solid var(--borda);
+    background: var(--bg2);
+    color: var(--texto-fraco);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .aba:hover { border-color: var(--verde-claro); color: var(--texto); }
+  .aba.ativa {
+    background: var(--verde-escuro);
+    border-color: var(--verde-claro);
+    color: var(--ouro);
+  }
+
+  .painel { display: none; }
+  .painel.ativo { display: block; }
+
+  .secao {
+    background: var(--bg2);
+    border: 1px solid var(--borda);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .secao h2 {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ouro);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .secao h2::before {
+    content: '';
+    width: 3px;
+    height: 14px;
+    background: var(--verde-claro);
+    border-radius: 2px;
+    display: block;
+  }
+
+  .campo-grupo {
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--texto-fraco);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  input[type="number"] {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    color: var(--branco);
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+
+  input[type="number"]:focus {
+    outline: none;
+    border-color: var(--verde-claro);
+  }
+
+  input[type="number"]::placeholder { color: var(--texto-fraco); }
+
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg3);
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    color: var(--branco);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236a9478' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+  }
+
+  select:focus { outline: none; border-color: var(--verde-claro); }
+  select option { background: var(--bg3); }
+
+  .resultado {
+    background: var(--verde-escuro);
+    border: 1px solid var(--verde-claro);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 8px;
+  }
+
+  .resultado-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--borda);
+    font-size: 0.8rem;
+  }
+
+  .resultado-linha:last-child { border-bottom: none; padding-bottom: 0; }
+  .resultado-linha:first-child { padding-top: 0; }
+
+  .resultado-label {
+    color: var(--texto-fraco);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .resultado-valor {
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: var(--texto);
+  }
+
+  .resultado-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--verde-claro);
+  }
+
+  .resultado-total .label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ouro);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .resultado-total .valor {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--ouro-claro);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .tag-faixa {
+    display: inline-block;
+    background: var(--bg3);
+    border: 1px solid var(--borda);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 0.65rem;
+    font-family: 'DM Mono', monospace;
+    color: var(--verde-claro);
+    margin-top: 4px;
+  }
+
+  .aviso-zero {
+    text-align: center;
+    padding: 20px;
+    color: var(--texto-fraco);
+    font-size: 0.75rem;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--borda);
+    margin: 16px 0;
+  }
+
+  .parcelas-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .parcela-item label {
+    font-size: 0.65rem;
+  }
+
+  .total-parcelas {
+    background: var(--bg3);
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .total-parcelas span:first-child {
+    font-size: 0.65rem;
+    color: var(--texto-fraco);
+    font-family: 'DM Mono', monospace;
+    text-transform: uppercase;
+  }
+
+  .total-parcelas span:last-child {
+    font-family: 'DM Mono', monospace;
+    font-weight: 500;
+    color: var(--branco);
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<div class="topo">
+  <h1>Calculadora de Comissões</h1>
+  <p>Grupo Palmeiras Amazon</p>
+</div>
+
+<div class="abas">
+  <button class="aba ativa" onclick="trocarAba('adesao')">Adesão</button>
+  <button class="aba" onclick="trocarAba('imediato')">Imediato</button>
+  <button class="aba" onclick="trocarAba('parcelas')">Parcelas</button>
+</div>
+
+<!-- PAINEL ADESÃO -->
+<div id="painel-adesao" class="painel ativo">
+  <div class="secao">
+    <h2>Remuneração sobre Adesão</h2>
+    <div class="campo-grupo">
+      <label>Valor da Taxa de Adesão (R$)</label>
+      <input type="number" id="adesao-valor" placeholder="0,00" min="0" step="0.01" oninput="calcularAdesao()">
+    </div>
+    <div class="campo-grupo">
+      <label>Setor</label>
+      <select id="adesao-setor" onchange="calcularAdesao()">
+        <option value="televendas">Televendas</option>
+        <option value="diurno">Atendimento — Plantão Diurno</option>
+        <option value="comercial">Atendimento — Plantão Comercial</option>
+        <option value="noturno">Atendimento — Noturno / Cemitério</option>
+      </select>
+    </div>
+    <div class="campo-grupo" id="grupo-planos-adesao">
+      <label>Planos vendidos no mês</label>
+      <input type="number" id="adesao-planos" placeholder="0" min="0" oninput="calcularAdesao()">
+    </div>
+    <div id="resultado-adesao"></div>
+  </div>
+</div>
+
+<!-- PAINEL IMEDIATO -->
+<div id="painel-imediato" class="painel">
+  <div class="secao">
+    <h2>Comissão de Imediato</h2>
+    <div class="campo-grupo">
+      <label>Turno</label>
+      <select id="imediato-turno" onchange="calcularImediato()">
+        <option value="diurno">Plantão Diurno</option>
+        <option value="comercial">Plantão Comercial</option>
+        <option value="noturno">Plantão Noturno</option>
+      </select>
+    </div>
+    <div class="campo-grupo">
+      <label>Faturamento em Urnas (R$)</label>
+      <input type="number" id="imediato-urnas" placeholder="0,00" min="0" step="0.01" oninput="calcularImediato()">
+    </div>
+    <div class="campo-grupo">
+      <label>Faturamento em Itens Diversos (R$)</label>
+      <input type="number" id="imediato-itens" placeholder="0,00" min="0" step="0.01" oninput="calcularImediato()">
+    </div>
+    <div id="resultado-imediato"></div>
+  </div>
+</div>
+
+<!-- PAINEL PARCELAS -->
+<div id="painel-parcelas" class="painel">
+  <div class="secao">
+    <h2>Comissão sobre Parcelas Pagas</h2>
+    <p style="font-size:0.7rem; color:var(--texto-fraco); margin-bottom:14px; font-family:'DM Mono',monospace;">Exclusivo Televendas</p>
+    <div class="parcelas-grid">
+      <div class="parcela-item campo-grupo">
+        <label>1ª Parcela (R$)</label>
+        <input type="number" id="parcela1" placeholder="0,00" min="0" step="0.01" oninput="calcularParcelas()">
+      </div>
+      <div class="parcela-item campo-grupo">
+        <label>2ª Parcela (R$)</label>
+        <input type="number" id="parcela2" placeholder="0,00" min="0" step="0.01" oninput="calcularParcelas()">
+      </div>
+      <div class="parcela-item campo-grupo">
+        <label>3ª Parcela (R$)</label>
+        <input type="number" id="parcela3" placeholder="0,00" min="0" step="0.01" oninput="calcularParcelas()">
+      </div>
+      <div class="parcela-item campo-grupo">
+        <label>4ª Parcela (R$)</label>
+        <input type="number" id="parcela4" placeholder="0,00" min="0" step="0.01" oninput="calcularParcelas()">
+      </div>
+    </div>
+    <div id="resultado-parcelas"></div>
+  </div>
+</div>
+
+<script>
+function trocarAba(id) {
+  document.querySelectorAll('.painel').forEach(p => p.classList.remove('ativo'));
+  document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
+  document.getElementById('painel-' + id).classList.add('ativo');
+  event.target.classList.add('ativa');
+}
+
+function fmt(v) {
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+// ── ADESÃO ──────────────────────────────────────────────
+function calcularAdesao() {
+  const valor = parseFloat(document.getElementById('adesao-valor').value) || 0;
+  const setor = document.getElementById('adesao-setor').value;
+  const planos = parseInt(document.getElementById('adesao-planos').value) || 0;
+  const div = document.getElementById('resultado-adesao');
+
+  // Mostrar/ocultar campo planos
+  document.getElementById('grupo-planos-adesao').style.display = 
+    setor === 'noturno' ? 'none' : 'block';
+
+  if (valor <= 0) { div.innerHTML = ''; return; }
+
+  let pct = 0;
+  let faixa = '';
+
+  let proximo = '';
+  if (setor === 'televendas') {
+    if (planos >= 35)      { pct = 0.60; faixa = 'Acima de 35 planos — 60%'; proximo = ''; }
+    else if (planos >= 28) { pct = 0.60; faixa = '28 a 34 planos — 60%'; proximo = 'Você está no teto (60%)'; }
+    else if (planos >= 23) { pct = 0.60; faixa = '23 a 27 planos — 60%'; proximo = 'Você está no teto (60%)'; }
+    else if (planos >= 19) { pct = 0.60; faixa = '19 a 22 planos — 60%'; proximo = 'Você está no teto (60%)'; }
+    else if (planos >= 15) { pct = 0.50; faixa = '15 a 18 planos — 50%'; proximo = 'Faltam ' + (19 - planos) + ' plano(s) para 60%'; }
+    else                   { pct = 0;    faixa = 'Até 14 planos — 0%'; proximo = 'Faltam ' + (15 - planos) + ' plano(s) para 50%'; }
+  } else if (setor === 'diurno') {
+    if (planos > 10)      { pct = 0.60; faixa = 'Acima de 10 planos — 60%'; proximo = 'Você está no teto (60%)'; }
+    else if (planos >= 6) { pct = 0.50; faixa = '6 a 10 planos — 50%'; proximo = 'Faltam ' + (11 - planos) + ' plano(s) para 60%'; }
+    else                  { pct = 0;    faixa = 'Até 5 planos — 0%'; proximo = 'Faltam ' + (6 - planos) + ' plano(s) para 50%'; }
+  } else if (setor === 'comercial') {
+    if (planos > 12)      { pct = 0.60; faixa = 'Acima de 12 planos — 60%'; proximo = 'Você está no teto (60%)'; }
+    else if (planos >= 9) { pct = 0.50; faixa = '9 a 12 planos — 50%'; proximo = 'Faltam ' + (13 - planos) + ' plano(s) para 60%'; }
+    else                  { pct = 0;    faixa = 'Até 8 planos — 0%'; proximo = 'Faltam ' + (9 - planos) + ' plano(s) para 50%'; }
+  } else if (setor === 'noturno') {
+    pct = 0.60; faixa = 'A partir de 1 plano — 60%'; proximo = 'Você está no teto (60%)';
+  }
+
+  const comissao = valor * pct;
+
+  div.innerHTML = pct === 0
+    ? `<div class="resultado"><div class="aviso-zero">Meta mínima não atingida — sem remuneração sobre adesão<br><span class="tag-faixa">${faixa}</span>${proximo ? `<br><span class="tag-faixa" style="color:var(--ouro);border-color:var(--ouro);margin-top:6px">${proximo}</span>` : ''}</div></div>`
+    : `<div class="resultado">
+        <div class="resultado-linha">
+          <span class="resultado-label">Taxa de adesão</span>
+          <span class="resultado-valor">${fmt(valor)}</span>
+        </div>
+        <div class="resultado-linha">
+          <span class="resultado-label">Percentual atual</span>
+          <span class="resultado-valor">${(pct*100).toFixed(0)}%</span>
+        </div>
+        <div class="resultado-linha">
+          <span class="resultado-label">Faixa</span>
+          <span class="resultado-valor" style="font-size:0.7rem">${faixa}</span>
+        </div>
+        ${proximo ? `<div class="resultado-linha">
+          <span class="resultado-label">Próximo nível</span>
+          <span class="resultado-valor" style="color:var(--ouro);font-size:0.75rem">${proximo}</span>
+        </div>` : ''}
+        <div class="resultado-total">
+          <span class="label">Remuneração</span>
+          <span class="valor">${fmt(comissao)}</span>
+        </div>
+      </div>`;
+}
+
+// ── IMEDIATO ─────────────────────────────────────────────
+const tabelasUrnas = {
+  diurno: [
+    { ate: 4381.65, pct: 0 },
+    { ate: 5700.00, pct: 0.025 },
+    { ate: 7400.00, pct: 0.04 },
+    { ate: 9200.00, pct: 0.06 },
+    { ate: 17500.00, pct: 0.07 },
+    { ate: Infinity, pct: 0.09 },
+  ],
+  comercial: [
+    { ate: 2190.83, pct: 0 },
+    { ate: 2850.00, pct: 0.025 },
+    { ate: 3700.00, pct: 0.04 },
+    { ate: 4600.00, pct: 0.06 },
+    { ate: 8750.00, pct: 0.07 },
+    { ate: Infinity, pct: 0.09 },
+  ],
+  noturno: [
+    { ate: 2848.07, pct: 0 },
+    { ate: 3705.00, pct: 0.025 },
+    { ate: 4810.00, pct: 0.04 },
+    { ate: 5980.00, pct: 0.06 },
+    { ate: 11375.00, pct: 0.07 },
+    { ate: Infinity, pct: 0.09 },
+  ],
+};
+
+const tabelasItens = {
+  diurno: [
+    { ate: 4999.00, pct: 0 },
+    { ate: 6999.00, pct: 0.012 },
+    { ate: 8999.00, pct: 0.018 },
+    { ate: 12999.99, pct: 0.02 },
+    { ate: 23999.00, pct: 0.022 },
+    { ate: Infinity, pct: 0.028 },
+  ],
+  comercial: [
+    { ate: 2499.99, pct: 0 },
+    { ate: 3499.99, pct: 0.012 },
+    { ate: 4499.99, pct: 0.018 },
+    { ate: 6500.00, pct: 0.02 },
+    { ate: 11999.99, pct: 0.022 },
+    { ate: Infinity, pct: 0.028 },
+  ],
+  noturno: [
+    { ate: 3249.99, pct: 0 },
+    { ate: 4549.99, pct: 0.012 },
+    { ate: 5849.99, pct: 0.018 },
+    { ate: 8450.00, pct: 0.02 },
+    { ate: 15599.99, pct: 0.022 },
+    { ate: Infinity, pct: 0.028 },
+  ],
+};
+
+function buscarFaixa(tabela, valor) {
+  for (const f of tabela) {
+    if (valor <= f.ate) return f;
+  }
+  return tabela[tabela.length - 1];
+}
+
+function nomeFaixa(tabela, valor) {
+  const f = buscarFaixa(tabela, valor);
+  const pct = (f.pct * 100).toFixed(1).replace('.0','');
+  return `${pct}%`;
+}
+
+function calcularImediato() {
+  const turno = document.getElementById('imediato-turno').value;
+  const urnas = parseFloat(document.getElementById('imediato-urnas').value) || 0;
+  const itens = parseFloat(document.getElementById('imediato-itens').value) || 0;
+  const div = document.getElementById('resultado-imediato');
+
+  if (urnas <= 0 && itens <= 0) { div.innerHTML = ''; return; }
+
+  const fUrnas = buscarFaixa(tabelasUrnas[turno], urnas);
+  const fItens = buscarFaixa(tabelasItens[turno], itens);
+
+  const comUrnas = urnas * fUrnas.pct;
+  const comItens = itens * fItens.pct;
+  const total = comUrnas + comItens;
+
+  const pctUrnas = (fUrnas.pct * 100).toFixed(1).replace('.0','');
+  const pctItens = (fItens.pct * 100).toFixed(1).replace('.0','');
+
+  div.innerHTML = `<div class="resultado">
+    ${urnas > 0 ? `
+    <div class="resultado-linha">
+      <span class="resultado-label">Urnas — ${pctUrnas}%</span>
+      <span class="resultado-valor">${fmt(comUrnas)}</span>
+    </div>` : ''}
+    ${itens > 0 ? `
+    <div class="resultado-linha">
+      <span class="resultado-label">Itens Diversos — ${pctItens}%</span>
+      <span class="resultado-valor">${fmt(comItens)}</span>
+    </div>` : ''}
+    <div class="resultado-total">
+      <span class="label">Total Comissão</span>
+      <span class="valor">${fmt(total)}</span>
+    </div>
+  </div>`;
+}
+
+// ── PARCELAS ─────────────────────────────────────────────
+const tabelasParcelas = [
+  { // 1ª parcela
+    faixas: [
+      { ate: 1099, pct: 0 },
+      { ate: 1299, pct: 0.08 },
+      { ate: 1599, pct: 0.12 },
+      { ate: 1899, pct: 0.16 },
+      { ate: 2399, pct: 0.25 },
+      { ate: Infinity, pct: 0.30 },
+    ]
+  },
+  { // 2ª parcela
+    faixas: [
+      { ate: 799, pct: 0 },
+      { ate: 1099, pct: 0.08 },
+      { ate: 1299, pct: 0.12 },
+      { ate: 1599, pct: 0.16 },
+      { ate: 2099, pct: 0.20 },
+      { ate: Infinity, pct: 0.23 },
+    ]
+  },
+  { // 3ª parcela
+    faixas: [
+      { ate: 499, pct: 0 },
+      { ate: 699, pct: 0.08 },
+      { ate: 899, pct: 0.12 },
+      { ate: 999, pct: 0.16 },
+      { ate: 1399, pct: 0.20 },
+      { ate: Infinity, pct: 0.23 },
+    ]
+  },
+  { // 4ª parcela
+    faixas: [
+      { ate: 499, pct: 0 },
+      { ate: 699, pct: 0.08 },
+      { ate: 899, pct: 0.12 },
+      { ate: 999, pct: 0.16 },
+      { ate: 1299, pct: 0.20 },
+      { ate: Infinity, pct: 0.23 },
+    ]
+  },
+];
+
+function calcularParcelas() {
+  const ids = ['parcela1','parcela2','parcela3','parcela4'];
+  const valores = ids.map(id => parseFloat(document.getElementById(id).value) || 0);
+  const div = document.getElementById('resultado-parcelas');
+
+  const temValor = valores.some(v => v > 0);
+  if (!temValor) { div.innerHTML = ''; return; }
+
+  let linhas = '';
+  let total = 0;
+
+  valores.forEach((v, i) => {
+    if (v <= 0) return;
+    const f = buscarFaixa(tabelasParcelas[i].faixas, v);
+    const com = v * f.pct;
+    total += com;
+    const pct = (f.pct * 100).toFixed(0);
+    linhas += `<div class="resultado-linha">
+      <span class="resultado-label">${i+1}ª Parcela — ${pct}%</span>
+      <span class="resultado-valor">${fmt(com)}</span>
+    </div>`;
+  });
+
+  div.innerHTML = `<div class="resultado">
+    ${linhas}
+    <div class="resultado-total">
+      <span class="label">Total Comissão</span>
+      <span class="valor">${fmt(total)}</span>
+    </div>
+  </div>`;
+}
+</script>
+</body>
+</html>
